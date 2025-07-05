@@ -1,9 +1,10 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { RedisStore } from 'connect-redis';
+import RedisStore from 'connect-redis';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
+import type { Store } from 'express-session';
 
 import { getEnvVariables } from '@/core/config/envVariables';
 import { CoreModule } from '@/core/core.module';
@@ -12,6 +13,7 @@ import { RedisService } from '@/core/redis/redis.service';
 async function bootstrap() {
   const app = await NestFactory.create(CoreModule);
   const config = app.get(ConfigService);
+  const redis = app.get(RedisService);
   const {
     cookiesSecret,
     sessionSecret,
@@ -24,7 +26,6 @@ async function bootstrap() {
     sessionFolder,
     origin
   } = getEnvVariables(config);
-  const redis = app.get(RedisService);
 
   app.use(cookieParser(cookiesSecret));
 
@@ -43,14 +44,14 @@ async function bootstrap() {
       cookie: {
         domain: sessionDomain,
         maxAge: sessionMaxAge,
-        httpOnly: sessionHttpOnly,
-        secure: sessionSecure,
+        httpOnly: Boolean(sessionHttpOnly),
+        secure: Boolean(sessionSecure),
         sameSite: 'lax'
       },
       store: new RedisStore({
         client: redis,
         prefix: sessionFolder
-      })
+      }) as Store
     })
   );
 

@@ -39,19 +39,18 @@ export class SessionService {
     }
 
     return new Promise((resolve, reject) => {
-      req.session.createdAt = new Date();
+      req.session.createdAt = new Date().toISOString();
       req.session.userId = String(user.id);
-      console.log('session', req.session);
 
       req.session.save((err) => {
         if (err) {
-          console.error('Full error object:', err);
           return reject(
             new InternalServerErrorException(
               'Не удалось сохранить сессию'
             )
           );
         }
+
         resolve(user);
       });
     });
@@ -59,7 +58,6 @@ export class SessionService {
 
   public async logout(req: Request) {
     return new Promise((resolve, reject) => {
-
       req.session.destroy((err) => {
         if (err) {
           reject(
@@ -68,6 +66,8 @@ export class SessionService {
             )
           );
         }
+        console.log('session destroyed');
+
         const sessionName = this.configService.getOrThrow<string>('SESSION_NAME');
         req.res?.clearCookie(sessionName);
 
