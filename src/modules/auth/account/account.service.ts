@@ -1,7 +1,7 @@
+import { hash } from 'bcrypt';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { CreateUserInput } from '@/modules/auth/account/inputs/create-user.input';
-import { hash } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AccountService {
   public async create(input: CreateUserInput) {
     const { name, email, password } = input;
     const isExist = await this.prismaService.user.findUnique({ where: { email } });
-    const rounds = Number(this.configService.getOrThrow<number>('HASH_ROUNDS'));
+    const rounds = Number(this.configService.getOrThrow<string>('HASH_ROUNDS'));
 
     if (isExist) {
       throw new ConflictException('Email уже занят');
