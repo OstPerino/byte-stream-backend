@@ -1,7 +1,8 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Query, Mutation, Resolver, Args } from '@nestjs/graphql';
 
 import { AccountService } from './account.service';
 import { UserModel } from '@/modules/auth/account/models/user.model';
+import { CreateUserInput } from '@/modules/auth/account/inputs/create-user.input';
 
 @Resolver('Account')
 export class AccountResolver {
@@ -10,5 +11,10 @@ export class AccountResolver {
   @Query(() => [UserModel], { name: 'findAllUsers' })
   public async findAll() {
     return this.accountService.findAll();
+  }
+
+  @Mutation(() => Boolean, { name: 'createUser' })
+  public async create(@Args('data') input: CreateUserInput) {
+    return this.accountService.create(input);
   }
 }

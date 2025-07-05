@@ -1,15 +1,17 @@
-import { type ConfigService } from '@nestjs/config';
 import { type ApolloDriverConfig } from '@nestjs/apollo';
+import { type ConfigService } from '@nestjs/config';
 import { join } from 'path';
-import { isDev } from '@/shared/utils/is-dev';
-import { ArgumentType } from 'ioredis/built/Command';
 
-export function getGraphQLConfig(configService: ConfigService): ApolloDriverConfig {
+import { isDev } from '@/shared/utils/is-dev';
+
+export function getGraphQLConfig(
+  configService: ConfigService
+): ApolloDriverConfig {
   return {
     playground: isDev(configService),
     path: configService.getOrThrow<string>('GRAPHQL_PREFIX'),
     autoSchemaFile: join(process.cwd(), 'src/core/graphql/schema.gql'),
     sortSchema: true,
-    context: ({ req, res, }) => ({ req, res, }),
+    context: ({ req, res }) => ({ req, res })
   };
 }
