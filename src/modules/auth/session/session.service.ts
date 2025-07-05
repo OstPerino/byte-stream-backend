@@ -1,4 +1,4 @@
-import { compare, hash } from 'bcrypt';
+import { compare } from 'bcrypt';
 import type { Request } from 'express';
 import {
   Injectable,
@@ -19,8 +19,6 @@ export class SessionService {
 
   public async login(req: Request, input: LoginInput) {
     const { login, password } = input;
-    const rounds = Number(this.configService.getOrThrow<number>('HASH_ROUNDS'));
-    const hashedPassword = await hash(password, rounds);
     const user = await this.prismaService.user.findFirst({
       where: {
         OR: [
@@ -34,7 +32,7 @@ export class SessionService {
       throw new NotFoundException('Пользователь с таким именем не найден');
     }
 
-    const isValidPassword = await compare(password, hashedPassword);
+    const isValidPassword = await compare(password, user.password);
 
     if (!isValidPassword) {
       throw new UnauthorizedException('Неправильный пароль');
@@ -42,17 +40,19 @@ export class SessionService {
 
     return new Promise((resolve, reject) => {
       req.session.createdAt = new Date();
-      req.session.userId = user.id;
+      req.session.userId = String(user.id);
+      console.log('session', req.session);
 
       req.session.save((err) => {
         if (err) {
+          console.error('Full error object:', err);
           return reject(
             new InternalServerErrorException(
               'Не удалось сохранить сессию'
             )
           );
         }
-        resolve(true);
+        resolve(user);
       });
     });
   }
