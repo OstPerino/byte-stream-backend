@@ -25,7 +25,7 @@ type Mutation {
 }
 
 type Query {
-  findAllUsers: [UserModel!]!
+  getProfile: UserModel!
 }
 
 type UserModel {

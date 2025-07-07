@@ -11,8 +11,8 @@ export class AccountService {
     private readonly configService: ConfigService
   ) {}
 
-  public async findAll() {
-    return this.prismaService.user.findMany();
+  public async me(id: string) {
+    return this.prismaService.user.findUnique({ where: { id } });
   }
 
   public async create(input: CreateUserInput) {
