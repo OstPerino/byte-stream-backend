@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 
-import { IS_DEV_ENV } from '@/shared/utils/is-dev';
+import { isDev } from '@/shared/utils/is-dev';
 import { getGraphQLConfig } from '@/core/config/graphql.config';
 import { PrismaModule } from '@/core/prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
@@ -14,7 +14,7 @@ import { SessionModule } from '@/modules/auth/session/session.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      ignoreEnvFile: !IS_DEV_ENV,
+      ignoreEnvFile: !isDev(),
       isGlobal: true
     }),
     GraphQLModule.forRootAsync({

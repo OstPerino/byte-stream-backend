@@ -9,22 +9,23 @@ import type { Store } from 'express-session';
 import { getEnvVariables } from '@/core/config/envVariables';
 import { CoreModule } from '@/core/core.module';
 import { RedisService } from '@/core/redis/redis.service';
+import { isDev } from '@/shared/utils/is-dev';
 
 async function bootstrap() {
   const app = await NestFactory.create(CoreModule);
   const config = app.get(ConfigService);
   const redis = app.get(RedisService);
   const {
+    appPort,
+    origin,
     cookiesSecret,
     sessionSecret,
     sessionName,
-    appPort,
     sessionDomain,
     sessionMaxAge,
     sessionHttpOnly,
     sessionSecure,
-    sessionFolder,
-    origin
+    sessionFolder
   } = getEnvVariables(config);
 
   app.use(cookieParser(cookiesSecret));
@@ -45,7 +46,7 @@ async function bootstrap() {
         domain: sessionDomain,
         maxAge: sessionMaxAge,
         httpOnly: Boolean(sessionHttpOnly),
-        secure: Boolean(sessionSecure),
+        secure: !isDev() && Boolean(sessionSecure),
         sameSite: 'lax'
       },
       store: new RedisStore({

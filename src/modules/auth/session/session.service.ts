@@ -39,8 +39,8 @@ export class SessionService {
     }
 
     return new Promise((resolve, reject) => {
-      req.session.createdAt = new Date().toISOString();
-      req.session.userId = String(user.id);
+      req.session.createdAt = new Date();
+      req.session.userId = user.id;
 
       req.session.save((err) => {
         if (err) {
@@ -60,13 +60,12 @@ export class SessionService {
     return new Promise((resolve, reject) => {
       req.session.destroy((err) => {
         if (err) {
-          reject(
+          return reject(
             new InternalServerErrorException(
               'Не удалось завершить сессию'
             )
           );
         }
-        console.log('session destroyed');
 
         const sessionName = this.configService.getOrThrow<string>('SESSION_NAME');
         req.res?.clearCookie(sessionName);
